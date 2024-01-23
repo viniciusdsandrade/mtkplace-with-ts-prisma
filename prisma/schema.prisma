@@ -23,9 +23,8 @@ model User {
 
 model Access {
   id        String   @id @default(uuid())
-  userId    String
+  name      String   @unique
   user      User[]
-  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

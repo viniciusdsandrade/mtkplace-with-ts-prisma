@@ -1,11 +1,10 @@
 import express from 'express'
 
-const app = express()
+import {router} from './router'
 
-app.get('/', (request, response) => {
-    return response.json({message: 'Hello World'})
-})
+const app = express()
+app.use(express.json())
+app.use(router)
 
 const port = 3333
-
 app.listen(port, () => console.log('Server is running on port ' + port))
