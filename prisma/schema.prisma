@@ -11,28 +11,38 @@ datasource db {
 }
 
 model User {
+  id         String       @id @default(uuid())
+  email      String       @unique
+  name       String?
+  password   String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  userAccess UserAccess[]
+  Store      Store[]
+}
+
+model UserAccess {
   id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   Access    Access?  @relation(fields: [accessId], references: [id])
   accessId  String?
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Access {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  user      User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String       @id @default(uuid())
+  name       String       @unique
+  userAccess UserAccess[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 model Product {
   id        String   @id @default(uuid())
   name      String
-  price     String
+  price     Decimal
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -46,4 +56,6 @@ model Store {
   Product   Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  User      User?     @relation(fields: [userId], references: [id])
+  userId    String?
 }
