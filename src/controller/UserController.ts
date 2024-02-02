@@ -6,7 +6,6 @@ export const createUser = async (req: Request, res: Response) => {
     const {name, email, password, accessName} = req.body;
 
     try {
-        // Verificar se o email já existe
         const isUserEmail = await prisma.user.findFirst({
             where: {
                 email
@@ -43,10 +42,9 @@ export const createUser = async (req: Request, res: Response) => {
 
         return res.status(201).json(user);
     } catch (error) {
-        return res.status(500).json({message: "Ocorreu um erro ao tentar criar o usuário.", error});
+        return res.status(400).json(error);
     }
 }
-
 export const deleteAllUsers = async (req: Request, res: Response) => {
     try {
         const deleteResult = await prisma.user.deleteMany();
@@ -58,11 +56,9 @@ export const deleteAllUsers = async (req: Request, res: Response) => {
 
         return res.status(200).json({message: `Foram deletados ${deletedCount} usuários com sucesso.`});
     } catch (error) {
-        return res.status(500).json({message: "Ocorreu um erro ao tentar excluir os usuários.", error});
+        return res.status(400).json(error);
     }
 };
-
-
 export const deleteUserByEmail = async (req: Request, res: Response) => {
     const {email} = req.body;
 
@@ -71,7 +67,6 @@ export const deleteUserByEmail = async (req: Request, res: Response) => {
             where: {
                 email: email,
             },
-
         });
 
         if (!user) {
@@ -89,28 +84,65 @@ export const deleteUserByEmail = async (req: Request, res: Response) => {
         return res.status(500).json({message: "Ocorreu um erro ao tentar excluir o usuário.", error});
     }
 };
-
 export const listUsers = async (req: Request, res: Response) => {
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            userAccess: {
-                select: {
-                    Access: {
-                        select: {
-                            name: true
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                userAccess: {
+                    select: {
+                        Access: {
+                            select: {
+                                name: true
+                            }
                         }
                     }
                 }
             }
+        });
+
+        if (users.length === 0) {
+            return res.status(400).json({message: "Não há usuários para listar."});
         }
-    });
 
-    if (users.length === 0) {
-        return res.status(400).json({message: "Não há usuários para listar."});
+        return res.status(200).json(users);
+    } catch (error) {
+        return res.status(400).json(error);
     }
-
-    return res.status(200).json(users);
 };
+
+export const getUserById = async (req: Request, res: Response) => {
+    const {id} = req.params;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(id)
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                userAccess: {
+                    select: {
+                        Access: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            return res.status(400).json({message: "Usuário não encontrado."});
+        }
+
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
