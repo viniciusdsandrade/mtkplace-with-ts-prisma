@@ -21,7 +21,7 @@ export function authMiddleware(permissions?: string[]) {
         try {
             const MY_SECRET_KEY = process.env.JWT_SECRET;
             if (!MY_SECRET_KEY) {
-                throw new Error("Chave secreta não encontrada.");
+                return res.status(400).json({message: "Chave secreta não definida."});
             }
 
             const decoded = verify(token, MY_SECRET_KEY) as DecodedToken;
@@ -33,7 +33,7 @@ export function authMiddleware(permissions?: string[]) {
             if (permissions) {
                 const user = await prisma.user.findUnique({
                     where: {
-                        id: decoded.userId,
+                        id: parseInt(decoded.userId)
                     },
                     include: {
                         userAccess: {

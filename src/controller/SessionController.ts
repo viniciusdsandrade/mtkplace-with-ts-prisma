@@ -36,7 +36,7 @@ export const signIn = async (req: Request, res: Response) => {
 
         const MY_SECRET_KEY = process.env.JWT_SECRET;
         if (!MY_SECRET_KEY) {
-            throw new Error("Chave secreta não encontrada.");
+            return res.status(400).json({message: "Chave secreta não encontrada."});
         }
 
         const token = sign({

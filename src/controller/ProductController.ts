@@ -7,14 +7,15 @@ export const createProduct = async (req: Request, res: Response) => {
     const {storeId} = req.params;
 
     const isStoreExists = await prisma.store.findUnique({
-        where: {
-            id: storeId
-        }
+        where:
+            {
+                id: parseInt(storeId)
+            }
     });
 
     if (!isStoreExists) return res.status(400).json({error: 'Loja não existe'});
 
-    if(price < 0 || amount < 0) return res.status(400).json({error: 'Preço e quantidade devem ser maiores que 0'});
+    if (price < 0 || amount < 0) return res.status(400).json({error: 'Preço e quantidade devem ser maiores que 0'});
 
 
     const product = await prisma.product.create({
@@ -24,7 +25,7 @@ export const createProduct = async (req: Request, res: Response) => {
             amount,
             Store: {
                 connect: {
-                    id: storeId
+                    id: parseInt(storeId)
                 }
             }
         },
@@ -47,22 +48,34 @@ export const createProduct = async (req: Request, res: Response) => {
 }
 
 export const listProducts = async (req: Request, res: Response) => {
-    const products = await prisma.product.findMany({
-        select: {
-            name: true,
-            price: true,
-            amount: true,
-            Store: {
-                select: {
-                    name: true
+    try {
+        const products = await prisma.product.findMany({
+            select: {
+                id: true,
+                name: true,
+                price: true,
+                amount: true,
+                Store: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
                 }
             }
+        });
+
+        const productCount = products.length;
+
+        if (productCount === 0) {
+            return res.status(400).json({ message: "Não há produtos para serem exibidos." });
         }
-    });
 
+        return res.json(products);
+    } catch (error) {
+        return res.status(400).json({ message: "Ocorreu um erro ao tentar listar os produtos.", error });
+    }
+};
 
-    return res.json(products);
-}
 
 export const deleteAllProducts = async (req: Request, res: Response) => {
     try {
@@ -70,11 +83,11 @@ export const deleteAllProducts = async (req: Request, res: Response) => {
         const deletedCount = deleteResult.count;
 
         if (deletedCount === 0) {
-            return res.status(400).json({ message: "Não há produtos para deletar." });
+            return res.status(400).json({message: "Não há produtos para deletar."});
         }
 
-        return res.status(200).json({ message: `Foram deletados ${deletedCount} produtos com sucesso.` });
+        return res.status(200).json({message: `Foram deletados ${deletedCount} produtos com sucesso.`});
     } catch (error) {
-        return res.status(500).json({ message: "Ocorreu um erro ao tentar excluir os produtos.", error });
+        return res.status(400).json({message: "Ocorreu um erro ao tentar excluir os produtos.", error});
     }
 };

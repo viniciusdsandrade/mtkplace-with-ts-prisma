@@ -7,7 +7,7 @@ export const createStore = async (req: Request, res: Response) => {
 
     const isUserExists = await prisma.user.findUnique({
         where: {
-            id: userId
+            id: parseInt(userId)
         }
     });
 
@@ -18,7 +18,7 @@ export const createStore = async (req: Request, res: Response) => {
             name,
             User: {
                 connect: {
-                    id: userId
+                    id: parseInt(userId)
                 }
             }
         },
@@ -68,6 +68,6 @@ export const deleteAllStores = async (req: Request, res: Response) => {
 
         return res.status(200).json({message: `Foram deletadas ${deletedCount} lojas com sucesso.`});
     } catch (error) {
-        return res.status(500).json({message: "Ocorreu um erro ao tentar excluir as lojas.", error});
+        return res.status(400).json({message: "Ocorreu um erro ao tentar excluir as lojas.", error});
     }
 };
