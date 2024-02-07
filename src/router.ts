@@ -6,7 +6,7 @@ import {createStore, deleteAllStores, listStores} from "./controller/StoreContro
 import {createProduct, deleteAllProducts, listProducts} from "./controller/ProductController";
 import {signIn} from "./controller/SessionController";
 import {authMiddleware} from "./middleware/AuthMiddleware";
-import {createSale, getAllSales} from "./controller/SellerController";
+import {createSale, getAllSales, getAllSalesByBuyer, getAllSalesBySeller} from "./controller/SellerController";
 
 export const router = Router();
 
@@ -54,6 +54,8 @@ router.get("/accesses", getAllAccess);
 router.get("/stores", listStores);
 router.get("/products", listProducts);
 router.get("/get-all-sales", authMiddleware(["Administrador", "Vendedor", "Comprador"]), getAllSales);
+router.get("/get-all-sales-by-buyer", authMiddleware(["Administrador", "Comprador"]), getAllSalesByBuyer);
+router.get("/get-all-sales-by-seller", authMiddleware(["Administrador", "Vendedor"]), getAllSalesBySeller);
 
 router.delete("/users", deleteAllUsers);
 router.delete("/users-by-email", deleteUserByEmail);

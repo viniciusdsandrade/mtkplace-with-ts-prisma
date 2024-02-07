@@ -32,10 +32,18 @@ export const createSale = async (req: Request, res: Response) => {
             }
         });
 
+        if (productWithQuantity.length === 0) return res.status(400).json({message: 'You must select at least one product'});
+
+
         let total = 0;
         for (const product of productWithQuantity) {
             total += product.price * parseInt(product.quantity);
         }
+
+        //Algumas validações
+        if (id === userSellerId) return res.status(400).json({message: 'You cannot sell to yourself'});
+        if (productWithQuantity.length === 0) return res.status(400).json({message: 'You must select at least one product'});
+        if (productWithQuantity.some((product: any) => product.amount < product.quantity)) return res.status(400).json({message: 'Some products are out of stock'});
 
         const sale = await prisma.sale.create({
             data: {
@@ -79,7 +87,6 @@ export const createSale = async (req: Request, res: Response) => {
         return res.status(500).json({message: 'Internal server error'});
     }
 };
-
 export const getAllSales = async (req: Request, res: Response) => {
     try {
         const sales = await prisma.sale.findMany(
@@ -87,20 +94,32 @@ export const getAllSales = async (req: Request, res: Response) => {
                 select: {
                     id: true,
                     totalValue: true,
-                    sellerId: true,
+                    Seller: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    Buyer: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
                     SalerProduct: {
                         select: {
-                            quantity: true,
                             Product: {
                                 select: {
+                                    id: true,
                                     name: true,
                                     price: true
                                 }
-                            }
+                            },
+                            quantity: true,
                         }
                     },
-                    buyerId: true,
-                }
+                    createdAt: true
+                },
             }
         );
 
@@ -110,4 +129,93 @@ export const getAllSales = async (req: Request, res: Response) => {
         return res.status(500).json({message: 'Internal server error'});
     }
 };
+export const getAllSalesByBuyer = async (req: Request, res: Response) => {
+    const {id} = req.user;
 
+    try {
+        const sales = await prisma.sale.findMany({
+                where: {
+                    buyerId: id
+                },
+                select: {
+                    id: true,
+                    totalValue: true,
+                    Seller: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    Buyer: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    SalerProduct: {
+                        select: {
+                            Product: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    price: true
+                                }
+                            },
+                            quantity: true,
+                        }
+                    },
+                    createdAt: true
+                },
+            }
+        );
+
+        return res.status(200).json(sales);
+    } catch (error) {
+        return res.status(500).json({message: 'Internal server error'});
+    }
+}
+export const getAllSalesBySeller = async (req: Request, res: Response) => {
+    const {id} = req.user;
+
+    try {
+        const sales = await prisma.sale.findMany({
+                where: {
+                    sellerId: id
+                },
+                select: {
+                    id: true,
+                    totalValue: true,
+                    Seller: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    Buyer: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    SalerProduct: {
+                        select: {
+                            Product: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    price: true
+                                }
+                            },
+                            quantity: true,
+                        }
+                    },
+                    createdAt: true
+                },
+            }
+        );
+
+        return res.status(200).json(sales);
+    } catch (error) {
+        return res.status(500).json({message: 'Internal server error'});
+    }
+}
