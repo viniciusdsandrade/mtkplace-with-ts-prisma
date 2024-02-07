@@ -99,6 +99,12 @@ export const listUsers = async (req: Request, res: Response) => {
                             }
                         }
                     }
+                },
+                Store: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
                 }
             }
         });
@@ -132,6 +138,12 @@ export const getUserById = async (req: Request, res: Response) => {
                                 name: true
                             }
                         }
+                    }
+                },
+                Store: {
+                    select: {
+                        id: true,
+                        name: true
                     }
                 }
             }

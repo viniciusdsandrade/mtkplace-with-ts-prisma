@@ -24,9 +24,11 @@ export const createStore = async (req: Request, res: Response) => {
         },
 
         select: {
+            id: true,
             name: true,
             User: {
                 select: {
+                    id: true,
                     name: true
                 }
             }
@@ -39,16 +41,20 @@ export const createStore = async (req: Request, res: Response) => {
 export const listStores = async (req: Request, res: Response) => {
     const stores = await prisma.store.findMany({
         select: {
+            id: true,
             name: true,
             User: {
                 select: {
+                    id: true,
                     name: true
                 }
             },
             Product: {
                 select: {
+                    id: true,
                     name: true,
-                    price: true
+                    price: true,
+                    amount: true
                 }
             }
         }

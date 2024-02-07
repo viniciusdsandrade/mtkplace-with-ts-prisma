@@ -19,7 +19,12 @@ export const createAccess = async (req: Request, res: Response) => {
 
 export const getAllAccess = async (req: Request, res: Response) => {
     try {
-        const access = await prisma.access.findMany();
+        const access = await prisma.access.findMany({
+            select: {
+                id: true,
+                name: true
+            }
+        });
 
         if (access.length === 0) {
             return res.status(400).json({ message: "Não há acessos disponíveis." });

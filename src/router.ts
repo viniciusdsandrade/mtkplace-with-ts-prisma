@@ -6,6 +6,7 @@ import {createStore, deleteAllStores, listStores} from "./controller/StoreContro
 import {createProduct, deleteAllProducts, listProducts} from "./controller/ProductController";
 import {signIn} from "./controller/SessionController";
 import {authMiddleware} from "./middleware/AuthMiddleware";
+import {createSale, getAllSales} from "./controller/SellerController";
 
 export const router = Router();
 
@@ -45,12 +46,14 @@ router.post("/store/:userId", createStore);
 router.post("/access", createAccess);
 router.post("/users", createUser);
 router.post("/product/:storeId", createProduct);
+router.post("/create-sale", authMiddleware(["Administrador", "Vendedor", "Comprador"]), createSale);
 
 router.get("/users", listUsers);
 router.get("/user/:id", getUserById);
 router.get("/accesses", getAllAccess);
 router.get("/stores", listStores);
 router.get("/products", listProducts);
+router.get("/get-all-sales", authMiddleware(["Administrador", "Vendedor", "Comprador"]), getAllSales);
 
 router.delete("/users", deleteAllUsers);
 router.delete("/users-by-email", deleteUserByEmail);

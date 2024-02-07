@@ -1,4 +1,3 @@
-//Validar as permições que o usuário possui
 import {Request, Response, NextFunction} from "express";
 import {prisma} from "../database/prisma";
 import {verify} from "jsonwebtoken";
@@ -24,16 +23,16 @@ export function authMiddleware(permissions?: string[]) {
                 return res.status(400).json({message: "Chave secreta não definida."});
             }
 
-            const decoded = verify(token, MY_SECRET_KEY) as DecodedToken;
+            const decodedToken = verify(token, MY_SECRET_KEY) as DecodedToken;
 
             req.user = {
-                id: decoded.userId
+                id: parseInt(decodedToken.userId)
             }
 
             if (permissions) {
                 const user = await prisma.user.findUnique({
                     where: {
-                        id: parseInt(decoded.userId)
+                        id: parseInt(decodedToken.userId)
                     },
                     include: {
                         userAccess: {
